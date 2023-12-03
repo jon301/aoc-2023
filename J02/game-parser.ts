@@ -44,3 +44,24 @@ export function isGamePossible(
   }
   return true
 }
+
+export function getFewestCountPerColor(
+  { normalizedGame }:
+  { normalizedGame: ReturnType<typeof normalizeGame> }
+): Record<string, number> {
+  const result: Record<string, number> = {
+    'blue': 0,
+    'red': 0,
+    'green': 0
+  }
+
+  for (const gameSet of normalizedGame.gameSets) {
+    for (const reveal of gameSet) {
+      if (reveal.count > result[reveal.color]) {
+        result[reveal.color] = reveal.count
+      }
+    }
+  }
+
+  return result
+}
