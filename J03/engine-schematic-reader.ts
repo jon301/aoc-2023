@@ -1,23 +1,8 @@
-// 467..114..
-// ...*......
-// ..35..633.
-// ......#...
-// 617*......
-// .....+.58.
-// ..592.....
-// ......755.
-// ...$.*....
-// .664.598..
-
 // input: ..35..633.
 // ouput: [
 //   { value: 35, indexStart: 2, indexEnd: 3 },
 //   { value: 633, indexStart: 6, indexEnd: 8 },
 // ]
-
-// edge cases:
-// input: 35....633.
-// input: ..35...633
 export function parseLine(line: string) {
   const output: Array<{ value: number; indexStart: number; indexEnd: number }> = []
 
@@ -103,4 +88,47 @@ export function getNumbersAdjacentToSymbol(
   }
 
   return result
+}
+
+// Returns an array of indexes of all * in the given line
+export function getStarSymbolIndexes(line: string) {
+  return line.split('').reduce((acc, value, index) => {
+    if (value === '*') {
+      return [...acc, index]
+    }
+    return acc
+  }, [] as number[])
+}
+
+export function computeGearRatioFromStarSymbolIndex(
+  { starSymbolIndex, currentLineIndex, schematic }:
+  { starSymbolIndex: number; currentLineIndex: number; schematic: string[]; }
+) {
+  const prevLine = schematic[currentLineIndex - 1]
+  const prevLineNumbers = prevLine ? parseLine(prevLine) : []
+
+  const currentLine = schematic[currentLineIndex]
+  const currentLineNumbers = currentLine ? parseLine(currentLine) : []
+
+  const nextLine = schematic[currentLineIndex + 1]
+  const nextLineNumbers = nextLine ? parseLine(nextLine) : []
+
+  const allNumbers = [...prevLineNumbers, ...currentLineNumbers, ...nextLineNumbers]
+
+  const adjacentNumbers: ReturnType<typeof parseLine> = []
+  for (const num of allNumbers) {
+    if (
+      starSymbolIndex >= num.indexStart && starSymbolIndex <= num.indexEnd ||
+      starSymbolIndex + 1 === num.indexStart ||
+      starSymbolIndex - 1 === num.indexEnd
+    ) {
+      adjacentNumbers.push(num)
+    }
+  }
+
+  if (adjacentNumbers.length === 2) {
+    return adjacentNumbers[0]!.value * adjacentNumbers[1]!.value
+  }
+
+  return 0
 }
